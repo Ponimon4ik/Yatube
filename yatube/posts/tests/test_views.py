@@ -73,6 +73,14 @@ class PostsPagesTests(TestCase):
         cls.POST_SECOND_GROUP_URL = reverse(
             'posts:post_detail',
             args=[cls.post_second_group.id])
+        cls.SUBSCRIPTION_URL = reverse(
+            'posts:profile_follow',
+            args=[cls.user_lists[0].username]
+        )
+        cls.UNSUBSCRIBE_URL = reverse(
+            'posts:profile_unfollow',
+            args=[cls.user_lists[0].username]
+        )
 
     @classmethod
     def tearDownClass(cls):
@@ -217,3 +225,19 @@ class PostsPagesTests(TestCase):
         context_page = response.context['page_obj']
         posts_lists = [post for post in context_page]
         self.assertNotIn(self.post_second_group, posts_lists)
+
+    def test_follow_author(self):
+        """Тест не подписанный юзер подписался на автора"""
+        self.unfollower.get(self.SUBSCRIPTION_URL)
+        self.assertTrue(Follow.objects.filter(
+            user=self.user_lists[2],
+            author=self.user_lists[0]).exists()
+        )
+
+    def test_unfollow_author(self):
+        """Тест подписанный юзер отписался от автора"""
+        self.follower.get(self.UNSUBSCRIBE_URL)
+        self.assertFalse(Follow.objects.filter(
+            user=self.user_lists[1],
+            author=self.user_lists[0]).exists()
+        )

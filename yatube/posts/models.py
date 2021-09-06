@@ -12,12 +12,12 @@ class Group (models.Model):
                             verbose_name='ключ')
     description = models.TextField(verbose_name='описание группы')
 
-    def __str__(self):
-        return self.title
-
     class Meta:
         verbose_name = 'группа'
         verbose_name_plural = 'группы'
+
+    def __str__(self):
+        return self.title
 
 
 class Post (models.Model):
@@ -38,6 +38,11 @@ class Post (models.Model):
                               upload_to='posts/',
                               blank=True)
 
+    class Meta:
+        ordering = ('-pub_date',)
+        verbose_name = 'запись'
+        verbose_name_plural = 'записи'
+
     def __str__(self):
         return (
             f'{self.author}, '
@@ -45,11 +50,6 @@ class Post (models.Model):
             f'{self.group}, '
             f'{self.pub_date}'
         )
-
-    class Meta:
-        ordering = ('-pub_date',)
-        verbose_name = 'запись'
-        verbose_name_plural = 'записи'
 
 
 class Comment (models.Model):
@@ -68,17 +68,17 @@ class Comment (models.Model):
                                    )
     text = models.TextField(verbose_name='текст комментария')
 
+    class Meta:
+        ordering = ('-created',)
+        verbose_name = 'комментарии'
+        verbose_name_plural = 'комментарии'
+
     def __str__(self):
         return (
             f'{self.author}, '
             f'{self.text[:15]}, '
             f'{self.created}'
         )
-
-    class Meta:
-        ordering = ('-created',)
-        verbose_name = 'комментарии'
-        verbose_name_plural = 'комментарии'
 
 
 class Follow(models.Model):
@@ -93,12 +93,16 @@ class Follow(models.Model):
                                verbose_name='автор'
                                )
 
+    class Meta:
+        verbose_name = 'подписки'
+        verbose_name_plural = 'подписки'
+        constraints = [
+            models.UniqueConstraint(fields=['user', 'author'],
+                                    name='unique subscription')
+        ]
+
     def __str__(self):
         return (
             f'{self.author}, '
             f'{self.user}'
         )
-
-    class Meta:
-        verbose_name = 'подписки'
-        verbose_name_plural = 'подписки'

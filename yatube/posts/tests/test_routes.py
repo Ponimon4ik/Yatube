@@ -26,7 +26,7 @@ class RoutesTests(TestCase):
              'posts:group_list', [post.group.slug]],
             [f'/posts/{post.id}/edit/', 'posts:post_edit', [post.id]],
             ['/follow/', 'posts:follow_index', []],
-            [f'/posts/{post.id}/comment', 'posts:add_comment', [post.id]],
+            [f'/posts/{post.id}/comment/', 'posts:add_comment', [post.id]],
             [f'/profile/{post.author.username}/follow/',
              'posts:profile_follow', [post.author.username]],
             [f'/profile/{post.author.username}/unfollow/',

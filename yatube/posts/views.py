@@ -1,22 +1,16 @@
 from django.contrib.auth.decorators import login_required
-from django.core.paginator import Paginator
 from django.shortcuts import get_object_or_404, render, redirect
 
 from .models import Post, Group, User, Follow
 from .forms import PostForm, CommentForm
-from .settings import POST_COUNT
-
-
-def paginator_page(request, post_list):
-    paginator = Paginator(post_list, POST_COUNT)
-    page_number = request.GET.get('page')
-    return paginator.get_page(page_number)
+from .utils import paginator_page
 
 
 def index(request):
     # Все записи
     return render(request, 'posts/index.html', {
-        'page_obj': paginator_page(request, Post.objects.all()),
+        'page_obj': paginator_page(
+            request, Post.objects.select_related('group').all()),
     })
 
 
@@ -38,13 +32,12 @@ def profile(request, username):
     }
     if not request.user.is_authenticated:
         return render(request, 'posts/profile.html', context)
-    subscription = Follow.objects.filter(
-        user=request.user,
-        author=author).exists()
-    if subscription is None:
-        result = False
-    else:
+    if Follow.objects.filter(
+            user=request.user,
+            author=author).exists():
         result = True
+    else:
+        result = False
     context['following'] = result
     return render(request, 'posts/profile.html', context)
 
@@ -109,29 +102,20 @@ def add_comment(request, post_id):
 @login_required
 def follow_index(request):
     # Посты избранных авторов
-    subscriptions = Follow.objects.filter(
-        user=request.user)
-    authors = [subscription.author for subscription in subscriptions]
-    post_lists = [Post.objects.filter(author=author)
-                  for author in authors]
-    posts = []
-    for post_list in post_lists:
-        for post in post_list:
-            posts.append(post)
+    post_list = Post.objects.filter(
+        author__following__user=request.user)
     return render(request, 'posts/follow.html', {
-        'page_obj': paginator_page(request, posts)})
+        'page_obj': paginator_page(request, post_list)})
 
 
 @login_required
 def profile_follow(request, username):
     # Подписаться на автора
     author = get_object_or_404(User, username=username)
-    if author == request.user or (
-            author.following.filter(
-                user=request.user).count() == 1):
+    if author == request.user:
         return redirect('posts:profile', username=username)
-    Follow.objects.create(user=request.user,
-                          author=author)
+    Follow.objects.get_or_create(
+        user=request.user, author=author)
     return redirect('posts:profile', username=username)
 
 
