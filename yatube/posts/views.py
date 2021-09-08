@@ -32,12 +32,9 @@ def profile(request, username):
     }
     if not request.user.is_authenticated:
         return render(request, 'posts/profile.html', context)
-    if Follow.objects.filter(
+    result = Follow.objects.filter(
             user=request.user,
-            author=author).exists():
-        result = True
-    else:
-        result = False
+            author=author).exists()
     context['following'] = result
     return render(request, 'posts/profile.html', context)
 
