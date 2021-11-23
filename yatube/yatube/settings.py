@@ -23,13 +23,15 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = '*tc%(c7rp&go8qb+*lmke1fmub*qa1e!t1irr3rka#mkkh-&a7'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = [
     'localhost',
     '127.0.0.1',
     '[::1]',
     'testserver',
+    'www.ponimon4ik.pythonanywhere.com',
+    'ponimon4ik.pythonanywhere.com',
 ]
 
 
